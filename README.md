@@ -40,7 +40,7 @@ The following fields can passed to the step:
 |:----------:|:-------:|:-------:|:---------:|
 | url | URL to submit Request against | _https://some-url.com_ | Y |
 | test-string | String to look for in the HTTP Response. No special characters. | _Homepage loaded_ | Y |
-| method | Which HTTP method to use in the Request. (POST) is default. | _GET_ | N |
+| method | Which HTTP method to use in the Request. POST is default. | _GET_ | Y |
 | user | Provide a username:password to use for server authentication | _Key Storage entry formatted username:passwword_ | N |
 | parameters | Key=value parm list separated by '&' to be passed to curl using the --data flag | _key1=value&key2=value_ | N |
 
@@ -50,7 +50,7 @@ Given the input above, a `curl` command will be issued like this:
 curl --fail --insecure --cookie-jar /dev/null --location --request <method> <url> [--user <user>] [--data <parameters>]
 ```
 
-The result will be searched to see if it contains <test-string>. __Note__ that special chars will be removed from <test-string> before searching (spaces are OK).  
+The result will be searched to see if it contains the test-string. __Note__ that special chars will be removed from the test-string before searching (spaces are OK).  
 
 #### Failure Codes
 

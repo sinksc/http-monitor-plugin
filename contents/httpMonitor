@@ -1,0 +1,125 @@
+#!/bin/bash
+
+########################################################################################
+# HTTP POST monitor:
+#   Perform an HTTP request against the supplied URL, and checks the returned result to 
+#   see if it contains the string provided. If it does not, print a message and fail.
+########################################################################################
+
+# Set options
+set -o nounset  # Fail if trying to use/modify any variables that are not set
+set -o errexit  # Exit after any non-zero exit code (unless the cmd is wrapped in an evaluate/if statement or uses '||')
+
+blue=$(tput setaf 4)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+normal=$(tput sgr0)
+
+#Functions
+usage() {
+  printf "%s\n" "Pass in a URL and the string to look for in the POSTed results. If the specified string is not found in the result, the script will print a message and fail."
+  printf "%s\n" "Note: The test string cannot contain special characters."
+  printf "%s\n" "Usage: --url 'http://test-url.com' --test 'test string' --method 'GET'"
+  printf "%s\n" "Returns: 0=Success, 1=Failed - test string not found, 2=Failed - invalid args, 3=Failed - curl command failed"
+}
+
+options_parse() {
+  unrecognized_args=()
+
+    while (( "$#" > 0 ))
+    do
+        OPT="$1"
+        case "$OPT" in
+            --url)              url=$2      ; shift 2 ;;
+            --test)             test=$2     ; shift 2 ;;
+            --method)           method=$2   ; shift 2 ;;
+            # help option
+            -\?|--help)
+                usage
+                exit 2
+                ;;
+            # unrecognized arguments
+            *)
+              unrecognized_args+=("$OPT")
+              shift
+              ;;
+        esac
+    done
+
+   # Check to see if required options are set
+  if [[ -z ${url+x} ]] || [[ -z ${test+x} ]]
+  then
+
+    printf "Missing required parameter. Specify both --url and --test.\n"
+    return 2
+
+  else
+
+    # Set method to POST unless overridden
+    if [[ -z ${method+x} ]] 
+    then
+        method='POST'
+    fi
+
+  fi
+    return 0
+}
+
+get_curl() {
+  #  find curl in $PATH
+  local curlExec=''
+
+  # Check the $PATH for it.
+  if ! curlExec=$(type -p curl)
+  then 
+    :
+  fi
+
+  if [[ -z "${curlExec:-}" ]]; then
+    printf "ERROR: curl executable not found."
+    return 1
+  fi
+  printf "%s" "$curlExec"
+  return 0
+}
+
+check_url() {
+  local curlOut=''
+  local test_url=$1 test_string=$2 curl_method=$3 user_pass=$4 parameters=$5
+  local clopts=(--fail --insecure --cookie-jar /dev/null --location --request "$curl_method" "$test_url")
+  [[ -n "$user_pass" ]] && clopts+=( --user "$user_pass" )
+  [[ -n "$parameters" ]] && clopts+=( --data "$parameters" )
+
+  curlOut=$(eval "$curlExec" "${clopts[@]}"  2>&1 ) || { printf "%s\n" "${red}CURL ERROR:${normal} $curlOut"; exit 3; }
+
+  if [[ "$curlOut" == *"$test_string"*  ]]; then
+      printf "%s\n" "${green}Success!${normal}"
+      exit 0
+  else
+      printf "%s\n" "${red}FAIL: Response not found.${normal}"
+      exit 1
+  fi
+
+}
+
+###########################
+#Begin script execution
+###########################
+
+# Parse options
+if ! options_parse "$@"
+then
+  usage 
+  exit 2
+fi
+
+declare -r goodChars="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWZYX "
+declare -r scrubbedTestString="${test//[^$goodChars]/}"
+
+# Find curl executable
+curlExec=$(get_curl);
+
+printf "%s\n" "URL to $method: ${blue}${url}${normal}"
+printf "%s\n" "String to search for: ${blue}${scrubbedTestString}${normal}"
+
+check_url "$url" "$scrubbedTestString" "$method" "${RD_CONFIG_USER:-}" "${RD_CONFIG_PARMS:-}" 

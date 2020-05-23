@@ -1,0 +1,45 @@
+name: http-monitor-plugin
+version: 1.0.0
+rundeckPluginVersion: 1.2
+author: sinksc
+date: Sat May 23 2020
+providers:
+  - name: http-monitor-step
+    service: RemoteScriptNodeStep
+    title: 'http / monitor'
+    description: 'Submit an HTTP Request and check for a specified string in the response.'
+    plugin-type: script
+    script-interpreter: /usr/bin/env bash
+    script-file: httpMonitor
+    script-args: --url '${config.url}' --test '${config.test_string}' --method '${config.method}'
+    config:
+      - type: String
+        name: url
+        title: HTTP URL*
+        description: 'Valid HTTP URL to be monitored. Ex: https://example.com'
+        required: true        
+      - type: String
+        name: test_string
+        title: Search String*
+        description: 'If the specified test string is not in the Response, trigger a failure/notification'
+        required: true
+      - type: String
+        name: method
+        title: HTTP Method (GET or POST)*
+        description: 'If the specified test string is not in the Response, trigger a failure/notification'
+        type: Select
+        values: POST, GET
+        default: POST
+        required: true
+      - type: String
+        name: user
+        title: Key Storage entry with username:password to use (Optional)
+        description: 'If specified, use curl --user (-u) flag to specify the username:password for server authentication'
+        renderingOptions:
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: parms
+        title: 'Data parms (Optional)'
+        description: 'Separate multiple values with &. Ex: key1=value&key2=value'

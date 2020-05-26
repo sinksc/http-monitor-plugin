@@ -11,7 +11,7 @@ providers:
     plugin-type: script
     script-interpreter: /usr/bin/env bash
     script-file: httpMonitor
-    script-args: --url '${config.url}' --test '${config.test_string}' --method '${config.method}'
+    script-args: --url ${config.url} --test ${config.test_string} --method ${config.method}
     config:
       - type: String
         name: url

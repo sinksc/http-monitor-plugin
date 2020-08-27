@@ -27,6 +27,8 @@ Summary, on the executing node:
 2. Restart sshd service:
 
     `sudo service sshd restart`
+    
+__Note:__ As of Rundeck 3.3, RD_* remote environment variables will no longer be sent by default when using JSCH node executor. You can turn them back on with a configuration change. To enable it for all nodes in all projects, add `framework.ssh-send-env=true` to your `framework.properties` file. [For more options and information, see here](https://docs.rundeck.com/docs/upgrading/upgrading-to-rundeck-3.3.html#jsch-node-executor-timeouts-and-environment-variables).
 
 #### Rundeck setup
 

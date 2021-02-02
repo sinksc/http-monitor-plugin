@@ -34,7 +34,7 @@ providers:
       - type: String
         name: user
         title: Key Storage entry with username:password to use (Optional)
-        description: 'If specified, use curl --user (-u) flag to specify the username:password for server authentication'
+        description: 'If specified, uses curl --user (-u) flag to specify the username:password for server authentication'
         renderingOptions:
           selectionAccessor: "STORAGE_PATH"
           valueConversion: "STORAGE_PATH_AUTOMATIC_READ"

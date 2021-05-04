@@ -10,6 +10,8 @@
 set -o nounset  # Fail if trying to use/modify any variables that are not set
 set -o errexit  # Exit after any non-zero exit code (unless the cmd is wrapped in an evaluate/if statement or uses '||')
 
+export TERM=xterm
+
 blue=$(tput setaf 4)
 red=$(tput setaf 1)
 green=$(tput setaf 2)
